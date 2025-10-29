@@ -1,5 +1,6 @@
 import serial
 import sys
+import subprocess
 
 
 """
@@ -8,14 +9,6 @@ Defination of serial data
 [a] - Accelerometer
 [g] - Gyroscope
 """
-
-DIRECTION = {
-    0 : "UP",
-    1 : "DOWN",
-    2 : "RIGHT",
-    3 : "LEFT",
-    4 : "UNKNOWN",
-        }
 
 
 def get_direction(x, y, z):
@@ -33,21 +26,35 @@ def get_direction(x, y, z):
     max_var_val = var[max_var_axis]
     print(max_var_axis + str(max_var_val))
     if max_var_axis is "X" and max_var_val > 0:
-        return 0
+        return 'normal'
     elif max_var_axis is "X" and max_var_val < 0:
-        return 1
+        return "inverted"
     elif max_var_axis is "Y" and max_var_val > 0:
-        return 2
+        return "right"
     elif max_var_axis is "Y" and max_var_val < 0:
-        return 3
+        return "left"
     else:
-        return 4
+        return "unknown"
 
 
-def monitor_orientation_adjustment():
+def monitor_orientation_adjustment(orientation):
     """
+    Method to adjust the monitor layout
     """
-    pass
+
+    output_name = 'DP-4'
+
+    if orientation not in ['normal', 'left', 'right', 'inverted']:
+        return False
+
+    command = ['xrandr', '--output', output_name, '--rotate', orientation]
+    try:
+        subprocess.run(command, check=True, capture_output=True, text=True)
+        print(f"Successfully set the {output_name} orientation to {orientation}!")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to set the {output_name} orientation to {orientation}!")
+        return False
 
 
 def process_sensor_data(raw_data):
@@ -60,7 +67,8 @@ def process_sensor_data(raw_data):
             x, y, z = map(float, data)
             print(x, y, z)
             direction = get_direction(x, y, z)
-            print(DIRECTION[direction])
+            print(direction)
+            monitor_orientation_adjustment(direction)
 
 
 def read_serial_data():
