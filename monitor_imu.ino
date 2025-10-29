@@ -5,6 +5,9 @@
 LSM6DS3 myIMU(I2C_MODE, 0x6A);    //I2C device address 0x6A
 
 void setup() {
+    // initialize digital pin LED_BUILTIN as an output.
+    pinMode(LED_BUILTIN, OUTPUT);
+    
     // Customize code, to run once:
     Serial.begin(9600);
     while (!Serial);
@@ -17,6 +20,8 @@ void setup() {
 }
 
 void loop() {
+    digitalWrite(LED_RED, HIGH);
+
     //Accelerometer
     Serial.print("\n[m] Accelerometer(X,Y,Z):\n");
     Serial.print("[a]");
@@ -36,5 +41,11 @@ void loop() {
     Serial.print(",");
     Serial.print(myIMU.readFloatGyroZ(), 4);
 
-    delay(1000);
+    digitalWrite(LED_RED, LOW);
+    delay(100); 
+    digitalWrite(LED_BLUE, HIGH);
+    delay(100); 
+    digitalWrite(LED_BLUE, LOW);
+
+    delay(300);
 }
